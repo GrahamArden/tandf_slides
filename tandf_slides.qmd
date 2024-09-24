@@ -1,6 +1,6 @@
 ---
 title: "Proknow: Can we automate the process?"
-subtitle: ""
+subtitle: "..and why is it not as easy as you think"
 format: clean-revealjs
 html-math-method:
   method: mathjax
@@ -22,7 +22,7 @@ incremental: true
 - You need quite a lot of imformation to decide which collection (if any) a plan belongs to
 ---
 
-## How much can we automate allocation to collections?
+### What information do we need?
 
 - Dose
 - Fractionation
@@ -33,13 +33,14 @@ incremental: true
 
 
 
-## Unfortunately, it's not that simple
+### Unfortunately, it's not that simple
 
 - For scorecards to work we need to allocate patients to the correct collection
 - The volumes need to use the names defined in the scorecards
 
+---
 
-## Unfortunately, it's not that simple
+### Unfortunately, it's not that simple
 ::: {.nonincremental}
 - Not all the data we require _is in Proknow_
 
@@ -57,7 +58,9 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 
 :::
 
-## But this data _my be_ in ARIA (or Mosaic)
+---
+
+### But this data _may be_ in ARIA (or Mosaic)
 
 - We just need to extract it and match it with the Proknow data
   
