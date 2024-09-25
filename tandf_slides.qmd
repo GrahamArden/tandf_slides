@@ -2,12 +2,13 @@
 title: "Proknow: Can we automate the process?"
 subtitle: "..and why is it not as easy as you think"
 format: clean-revealjs
+code-block-height: 650px
 html-math-method:
   method: mathjax
   url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
 author:
   - name: "Graham Arden"
-    orcid: 0000-0000-0000-0000
+    orcid: 0009-0009-4124-5518
     email: graham.arden@nhs.net
     affiliations: Radiation Physics Department, The Queen's Centre, Castle Hill Hospital
 date: last-modified
@@ -224,3 +225,20 @@ for patient_id in patient_ids:
             data.append({'Dose.EntityID': dose.id, 'ROI.Name': max_dose_roi, 'ROI.Volume': max_dose_roi_volume, 'ROI.MaxDose': max_dose})
 ```
 :::
+
+## The source code is now available
+
+The source code for the modules should now be available on the T&F group Github page.
+
+```{.bash}
+git clone https://github.com/nhs-proknow/proknow-scripting-tandf.git
+```
+A packaged version is also available in ProKnow under the 'Documents' workspace.
+
+My own scripts for soritng into collections are on Github
+
+```{.bash}
+git clone https://github.com/nhs-proknow/Hull_tandf_scripts.git
+```
+
+Remember: These will need heavily modifying to work in other centres
