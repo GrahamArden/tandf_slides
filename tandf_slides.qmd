@@ -18,19 +18,17 @@ title-slide-attributes:
 incremental: true
 ---
 
-### What is our goal?
+## What is our goal?
 - For scorecards to work we need to allocate patients to the correct collection
 - The volumes need to use the names defined in the scorecards
----
-
-### Can we automate allocation to collections?
+  
+## Can we automate allocation to collections?
 
 - It depends
 - You need quite a lot of imformation to decide which collection (if any) a plan belongs to
-  
----
 
-### What information do we need?
+
+## What information do we need?
 
   - Dose
   - Fractionation
@@ -38,18 +36,16 @@ incremental: true
   - Laterality (for breast collections)
   - Patient age at time of treatment (for breast IMN collections)
 
----
 
-### Unfortunately, it's not that simple
+## Unfortunately, it's not that simple
 ::: {.nonincremental}
 - Not all the data we require _is in Proknow_
 
+:::
 
----
 
-
-### Laterality
-
+## Laterality
+::: {.nonincremental}
 - For laterality we _could_ apply a regular expression to the plan name:
 
 ```{.python}
@@ -59,20 +55,172 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
                             (re.compile(r"l(?:t|eft)?\s*((?:(b)(r)?(east?)?)|cw|chestwall)", re.IGNORECASE), national_collection_name_breast, "LEFT"),
                             (re.compile(r"r(?:t|ight)?\s*((?:(b)(r)?(east?)?)|cw|chestwall)", re.IGNORECASE), national_collection_name_breast, "RIGHT")]
 ```
-
+:::
+::: {.incremental}
 - This found _most_ of the relevant plans.
-
 :::
 
----
 
-### But this data _may be_ in ARIA (or Mosaic)
+
+## But this data _may be_ in ARIA (or Mosaic)
 
 - We just need to extract it and match it with the Proknow data
 
-### Prescription data
+
+
+## Prescription data
 ::: {.nonincremental}
 ![](./images/NHS21_prescription.PNG)
+
 :::
 
-  
+::: {.incremental}
+- We can also extract the patient date of birth ```(Patient.DateOfBirth)``` and plan creation date ```(PlanSetup.CreationDate)```
+
+:::
+
+
+
+## Use a bit of SQL
+
+::: {.nonincremental}
+
+```{.sql}
+DECLARE @StartDate Date = '01/01/2019'
+
+SELECT DISTINCT dbo.Course.CourseId AS 'Course.ID', 
+                dbo.Patient.PatientId AS 'MRN', 
+                dbo.RTPlan.PrescribedDose AS 'Prescription.Dose_per_fraction',
+                dbo.Prescription.PrescriptionName AS 'Prescription.Name',
+                dbo.Prescription.NumberOfFractions AS 'Prescription.Fractions',
+                dbo.Prescription.Site AS 'Prescription.Site',
+                dbo.PlanSetup.CreationDate AS 'Date.Treatment_Date',
+                dbo.RTPlan.PlanUID AS 'Plan.SeriesUID',
+                Patient.DateOfBirth AS 'Date.Patient_DOB'
+
+FROM            dbo.RTPlan INNER JOIN
+
+                         dbo.PlanSetup ON dbo.RTPlan.PlanSetupSer = dbo.PlanSetup.PlanSetupSer INNER JOIN
+
+                         dbo.Patient INNER JOIN
+
+                         dbo.Course ON dbo.Patient.PatientSer = dbo.Course.PatientSer ON dbo.PlanSetup.CourseSer = dbo.Course.CourseSer INNER JOIN
+
+                         dbo.PrescriptionAnatomy INNER JOIN
+
+                         dbo.PrescriptionAnatomyItem ON dbo.PrescriptionAnatomy.PrescriptionAnatomySer = dbo.PrescriptionAnatomyItem.PrescriptionAnatomySer INNER JOIN
+
+                         dbo.Prescription ON dbo.PrescriptionAnatomy.PrescriptionSer = dbo.Prescription.PrescriptionSer ON dbo.PlanSetup.PrescriptionSer = dbo.Prescription.PrescriptionSer
+
+WHERE        (dbo.PrescriptionAnatomyItem.ItemType LIKE 'TOTAL DOSE%') AND (dbo.Patient.PatientId LIKE 'HEY%' OR
+
+                         dbo.Patient.PatientId LIKE 'PAS%' OR
+
+                         dbo.Patient.PatientId LIKE 'NLG%') AND
+
+						 dbo.PlanSetup.CreationDate >= @StartDate			
+```
+:::
+
+## Call the SQL from within the Python script
+
+::: {.nonincremental}
+
+```{.python}
+import pyodbc
+import pandas as pd
+
+conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+ARIA_server+';DATABASE='+ARIA_database+';UID='+ARIA_username+';PWD='+ARIA_password)
+
+def aria_query(sql_query_file):
+    with open(sql_query_file, 'r') as file:
+        sql_query = file.read()
+    df_AriaQuery = pd.read_sql_query(sql_query, conn)
+
+    return df_AriaQuery
+
+df_prescription_data = aria_query('SQL/ProknowPrescription.sql')
+df_prescription_data_clean = df_prescription_data.dropna()
+```
+:::
+
+## Call the SQL from within the Python script
+
+::: {.nonincremental}
+
+```{.python code-line-numbers="6-11"}
+import pyodbc
+import pandas as pd
+
+conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+ARIA_server+';DATABASE='+ARIA_database+';UID='+ARIA_username+';PWD='+ARIA_password)
+
+def aria_query(sql_query_file):
+    with open(sql_query_file, 'r') as file:
+        sql_query = file.read()
+    df_AriaQuery = pd.read_sql_query(sql_query, conn)
+
+    return df_AriaQuery
+
+df_prescription_data = aria_query('SQL/ProknowPrescription.sql')
+df_prescription_data_clean = df_prescription_data.dropna()
+```
+:::
+
+## Call the SQL from within the Python script
+
+::: {.nonincremental}
+
+```{.python code-line-numbers="13-14"}
+import pyodbc
+import pandas as pd
+
+conn = pyodbc.connect('DRIVER={SQL Server};SERVER='+ARIA_server+';DATABASE='+ARIA_database+';UID='+ARIA_username+';PWD='+ARIA_password)
+
+def aria_query(sql_query_file):
+    with open(sql_query_file, 'r') as file:
+        sql_query = file.read()
+    df_AriaQuery = pd.read_sql_query(sql_query, conn)
+
+    return df_AriaQuery
+
+df_prescription_data = aria_query('SQL/ProknowPrescription.sql')
+df_prescription_data_clean = df_prescription_data.dropna()
+```
+:::
+
+## We also need to find the ROI with the largest dose
+
+::: {.nonincremental}
+
+```{.python}
+# Create an empty list to store the data
+data = []
+# Iterate over each patient ID
+for patient_id in patient_ids:
+    # Lookup patient
+    patients = pk.patients.lookup("RWA - Hull University Teaching Hospitals", [patient_id])
+    patient = patients[0].get()
+    
+    # Find dose entities
+    entities = patient.find_entities(type="dose")
+    for entity in entities:
+        try:
+            dose = entity.get()
+            analysis = dose.get_analysis()
+            rois = analysis['rois']
+
+            # Find ROI with highest maximum dose
+            max_dose = 0
+            max_dose_roi = ""
+            max_dose_roi_volume = 0
+
+            for roi in rois:
+                if roi['name'].startswith('PTV') and roi['name'] in ['PTV', 'PTV1', 'PTV2', 'PTV3', 'PTV4'] and roi['max_dose'] > max_dose:
+                    max_dose = roi['max_dose']
+                    max_dose_roi = roi['name']
+                    max_dose_roi_volume = roi['volume']
+
+            # Append data to the list
+            data.append({'Dose.EntityID': dose.id, 'ROI.Name': max_dose_roi, 'ROI.Volume': max_dose_roi_volume, 'ROI.MaxDose': max_dose})
+```
+:::
