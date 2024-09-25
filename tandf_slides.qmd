@@ -17,32 +17,38 @@ title-slide-attributes:
   data-background-opacity: "0.8"
 incremental: true
 ---
-### How much can we automate allocation to collections?
+
+### What is our goal?
+- For scorecards to work we need to allocate patients to the correct collection
+- The volumes need to use the names defined in the scorecards
+---
+
+### Can we automate allocation to collections?
+
 - It depends
 - You need quite a lot of imformation to decide which collection (if any) a plan belongs to
+  
 ---
 
 ### What information do we need?
 
-- Dose
-- Fractionation
-- PTV volume (for SABR collections)
-- Laterality (for breast collections)
-- Patient age at time of treatment (for breast IMN collections)
----
-
-
-
-### Unfortunately, it's not that simple
-
-- For scorecards to work we need to allocate patients to the correct collection
-- The volumes need to use the names defined in the scorecards
+  - Dose
+  - Fractionation
+  - PTV volume (for SABR collections)
+  - Laterality (for breast collections)
+  - Patient age at time of treatment (for breast IMN collections)
 
 ---
 
 ### Unfortunately, it's not that simple
 ::: {.nonincremental}
 - Not all the data we require _is in Proknow_
+
+
+---
+
+
+### Laterality
 
 - For laterality we _could_ apply a regular expression to the plan name:
 
@@ -54,7 +60,7 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
                             (re.compile(r"r(?:t|ight)?\s*((?:(b)(r)?(east?)?)|cw|chestwall)", re.IGNORECASE), national_collection_name_breast, "RIGHT")]
 ```
 
-- but this doesn't always work.
+- This found _most_ of the relevant plans.
 
 :::
 
@@ -63,4 +69,10 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 ### But this data _may be_ in ARIA (or Mosaic)
 
 - We just need to extract it and match it with the Proknow data
+
+### Prescription data
+::: {.nonincremental}
+![](./images/NHS21_prescription.PNG)
+:::
+
   
