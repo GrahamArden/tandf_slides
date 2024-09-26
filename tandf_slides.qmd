@@ -199,7 +199,7 @@ df_prescription_data_clean = df_prescription_data.dropna()
 ```
 :::
 
-## We also need to find the ROI with the largest dose
+## We may also need to find the PTV ROI with the largest dose
 
 ::: {.nonincremental}
 
