@@ -17,6 +17,7 @@ title-slide-attributes:
   data-background-size: contain
   data-background-opacity: "0.8"
 incremental: true
+#toc: true
 ---
 
 ## What is our goal?
@@ -80,8 +81,8 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 
 
 ## Prescription data
-::: {.nonincremental}
-![](./images/NHS21_prescription.PNG)
+::: {.r-stack}
+![](./images/NHS21_prescription.PNG){.fragment width="500" height="350"}
 
 :::
 
