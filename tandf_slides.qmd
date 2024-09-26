@@ -20,17 +20,17 @@ incremental: true
 #toc: true
 ---
 
-## What is our goal?
+## What is our goal? {.center}
 - For scorecards to work we need to allocate patients to the correct collection
 - The volumes need to use the names defined in the scorecards
   
-## Can we automate allocation to collections?
+## Can we automate allocation to collections? {.center}
 
 - It depends
 - You need some information to decide which collection (if any) a plan belongs to
 
 
-## What information do we need?
+## What information do we need? {.center}
 
   - Dose
   - Fractionation
@@ -39,7 +39,7 @@ incremental: true
   - Patient age at time of treatment (for breast IMN collections)
 
 
-## Unfortunately, it's not that simple
+## Unfortunately, it's not that simple {.center}
 ::: {.nonincremental}
 - Not all the data we require _is in Proknow_
 :::
@@ -51,12 +51,12 @@ incremental: true
 
 :::
 
-## The Scripting T&F group modules
+## The Scripting T&F group modules {.center}
 - These are Python modules which simplify using Python to query the ProKnow API
 - They have now been released under an open-source licence
 - Will return data either as CSV files or Pandas Datframes
 
-## Laterality
+## Laterality {.center}
 ::: {.nonincremental}
 - For laterality we _could_ apply a regular expression to the plan name:
 
@@ -74,13 +74,13 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 
 
 
-## But this data _may be_ in ARIA (or Mosaic)
+## But this data _may be_ in ARIA (or Mosaic) {.center}
 
 - We just need to extract it and match it with the Proknow data
 
 
 
-## Prescription data
+## Prescription data {.center}
 ::: {.r-stack}
 ![](./images/NHS21_prescription.PNG){.fragment width="500" height="350"}
 
@@ -93,7 +93,7 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 
 
 
-## Use a bit of SQL
+## Use a bit of SQL {.center}
 
 ::: {.nonincremental}
 
@@ -237,7 +237,7 @@ for patient_id in patient_ids:
 ```
 :::
 
-## The source code is now available
+## The source code is now available {.center}
 
 The source code for the modules should now be available on the T&F group Github page.
 
@@ -253,7 +253,4 @@ git clone https://github.com/nhs-proknow/Hull_tandf_scripts.git
 ```
 ..but these will need heavily modifying to work in other centres
 
-These slides are here:
-```
-https://github.com/GrahamArden/tandf_slides.git
-```
+These slides are here: https://github.com/GrahamArden/tandf_slides.git
