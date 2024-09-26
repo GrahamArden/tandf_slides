@@ -1,6 +1,6 @@
 ---
 title: "Proknow: Can we automate the process?"
-subtitle: "..and why is it not as easy as you think"
+subtitle: "..and why is it not as easy as you (or I) may think"
 format: clean-revealjs
 code-block-height: 650px
 html-math-method:
@@ -26,7 +26,7 @@ incremental: true
 ## Can we automate allocation to collections?
 
 - It depends
-- You need quite a lot of imformation to decide which collection (if any) a plan belongs to
+- You need quite a lot of information to decide which collection (if any) a plan belongs to
 
 
 ## What information do we need?
@@ -240,5 +240,9 @@ My own scripts for soritng into collections are on Github
 ```{.bash}
 git clone https://github.com/nhs-proknow/Hull_tandf_scripts.git
 ```
+..but these will need heavily modifying to work in other centres
 
-Remember: These will need heavily modifying to work in other centres
+These slides are here:
+```
+https://github.com/GrahamArden/tandf_slides.git
+```
