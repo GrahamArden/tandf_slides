@@ -26,7 +26,7 @@ incremental: true
 ## Can we automate allocation to collections?
 
 - It depends
-- You need quite a lot of information to decide which collection (if any) a plan belongs to
+- You need some information to decide which collection (if any) a plan belongs to
 
 
 ## What information do we need?
@@ -41,9 +41,19 @@ incremental: true
 ## Unfortunately, it's not that simple
 ::: {.nonincremental}
 - Not all the data we require _is in Proknow_
+:::
+
+::: {.incremental}
+- However we can extract the data that is there using some Python and the modules that the T&F group have produced
+- The other data we require _may_ be extracted from our Record and Verify system (ARIA, Mosaic etc) using a bit of SQL
+- ....but only if it's there in the first place!
 
 :::
 
+## The Scripting T&F group modules
+- These are Python modules which simplify using Python to query the ProKnow API
+- They have now been released under an open-source licence
+- Will return data either as CSV files or Pandas Datframes
 
 ## Laterality
 ::: {.nonincremental}
