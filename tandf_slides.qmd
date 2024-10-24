@@ -1,5 +1,5 @@
 ---
-title: "Proknow: Can we automate the process?"
+title: "Proknow: Automating the process?"
 subtitle: "..and why is it not as easy as you (or I) may think"
 format: clean-revealjs
 code-block-height: 650px
@@ -46,7 +46,7 @@ incremental: true
 
 ::: {.incremental}
 - However we can extract the data that is there using some Python and the modules that the T&F group have produced
-- The other data we require _may_ be extracted from our Record and Verify system (ARIA, Mosaic etc) using a bit of SQL
+- We _may_ be able to extract the rest of the data from our Record and Verify system (ARIA, Mosaic etc) using a bit of SQL
 - ....but only if it's there in the first place!
 
 :::
