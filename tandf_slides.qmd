@@ -1,6 +1,6 @@
 ---
-title: "Proknow: Automating the process?"
-subtitle: "..and why is it not as easy as you (or I) may think"
+title: "Proknow: Putting it all together "
+subtitle: "Using the modules along with a bit of SQL"
 format: clean-revealjs
 code-block-height: 650px
 html-math-method:
@@ -246,7 +246,7 @@ git clone https://github.com/nhs-proknow/proknow-scripting-tandf.git
 ```
 A packaged version is also available in ProKnow under the 'Documents' workspace.
 
-My own scripts for soritng into collections are on Github
+My own scripts for sorting into collections are on Github
 
 ```{.bash}
 git clone https://github.com/nhs-proknow/Hull_tandf_scripts.git
