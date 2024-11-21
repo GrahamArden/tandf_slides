@@ -1,6 +1,6 @@
 ---
 title: "Proknow: Putting it all together "
-subtitle: "Using the modules along with a bit of SQL"
+subtitle: "Using the modules along with ARIA"
 format: clean-revealjs
 code-block-height: 650px
 html-math-method:
@@ -46,7 +46,7 @@ incremental: true
 
 ::: {.incremental}
 - However we can extract the data that is there using some Python and the modules that the T&F group have produced
-- We _may_ be able to extract the rest of the data from our Record and Verify system (ARIA, Mosaic etc) using a bit of SQL
+- We _may_ be able to extract the rest of the data from our Record and Verify system (ARIA) using a bit of SQL
 - ....but only if it's there in the first place!
 
 :::
