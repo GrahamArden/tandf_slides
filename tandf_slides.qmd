@@ -22,7 +22,7 @@ incremental: true
 
 ## What is our goal? {.center}
 - For scorecards to work we need to allocate patients to the correct collection
-- The volumes need to use the names defined in the scorecards
+
   
 ## Can we automate allocation to collections? {.center}
 
@@ -56,6 +56,38 @@ incremental: true
 - They have now been released under an open-source licence
 - Will return data either as CSV files or Pandas Datframes
 
+
+## Pandas {.center}
+- This is a Python library for dealing with tabular data in the form of _dataframes_
+- Allows us to extract subsets of data based upon the values within a column
+- Can do SQL-like joins between _dataframs_
+
+## The steps I used {.center}
+- Get a list of patients in ProKnow that aren't allocated to a collection (national or _local_)
+- From ProKnow extract the dose and plan objects for each of these patients
+- Using an SQL query on our ARIA reports database extract some additional data relating to these patients
+- Combine it with the data in Proknow
+- Use this _expanded_ data to sort ther patients into collections
+
+## Getting the objects for a list of patients {.center}
+::: {.nonincremental}
+```{.python}
+Patients_no_collection = NHSPatientEntities(config_path=config_path,
+                                            patient_ids=patient_list)
+```
+- Create a dataframe containing all the objects and then seperate it into dose and plan objects
+```{.python}
+df_no_collection = Patients_no_collection.write_all_entities_to_dataframe()
+df_doses = df_no_collection[df_no_collection['Modality'] == 'RTDOSE']
+df_plans = df_no_collection[df_no_collection['Modality'] == 'RTPLAN']
+```
+- Recombine these into a single dataframe containing only the relevant data
+```{.python}
+merged_df = pd.merge(df_doses, df_plans, left_on='Dose.RefPlan', right_on='Plan.EntityID', how='inner')
+```
+
+:::
+
 ## Laterality {.center}
 ::: {.nonincremental}
 - For laterality we _could_ apply a regular expression to the plan name:
@@ -74,7 +106,7 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 
 
 
-## But this data _may be_ in ARIA (or Mosaic) {.center}
+## But this data _may be_ in ARIA {.center}
 
 - We just need to extract it and match it with the Proknow data
 
@@ -87,6 +119,10 @@ allocate_plan_id_lookups = [(re.compile(r"l(?:t|eft)?\s*(Lung)", re.IGNORECASE),
 :::
 
 ::: {.incremental}
+- This gives us total site, dose, number of fractions and, in the case of breast patients , laterality
+
+###
+
 - We can also extract the patient date of birth ```(Patient.DateOfBirth)``` and plan creation date ```(PlanSetup.CreationDate)```
 
 :::
@@ -200,46 +236,60 @@ df_prescription_data_clean = df_prescription_data.dropna()
 ```
 :::
 
-## We may also need to find the PTV ROI with the largest dose
 
+## We can then combine the data from ProKnow with the data obtained from ARIA {.center} 
 ::: {.nonincremental}
+- We can perfrom an inner join on the merged_df and the prescription data (df_prescription_data) using the Plan.SeriesUID as the key
 
 ```{.python}
-# Create an empty list to store the data
-data = []
-# Iterate over each patient ID
-for patient_id in patient_ids:
-    # Lookup patient
-    patients = pk.patients.lookup("RWA - Hull University Teaching Hospitals", [patient_id])
-    patient = patients[0].get()
-    
-    # Find dose entities
-    entities = patient.find_entities(type="dose")
-    for entity in entities:
-        try:
-            dose = entity.get()
-            analysis = dose.get_analysis()
-            rois = analysis['rois']
-
-            # Find ROI with highest maximum dose
-            max_dose = 0
-            max_dose_roi = ""
-            max_dose_roi_volume = 0
-
-            for roi in rois:
-                if roi['name'].startswith('PTV') and roi['name'] in ['PTV', 'PTV1', 'PTV2', 'PTV3', 'PTV4'] and roi['max_dose'] > max_dose:
-                    max_dose = roi['max_dose']
-                    max_dose_roi = roi['name']
-                    max_dose_roi_volume = roi['volume']
-
-            # Append data to the list
-            data.append({'Dose.EntityID': dose.id, 'ROI.Name': max_dose_roi, 'ROI.Volume': max_dose_roi_volume, 'ROI.MaxDose': max_dose})
+df_prescription_data_clean['Plan.SeriesUID'] = df_prescription_data_clean['Plan.SeriesUID'].astype(str)
+merged_df['Plan.SeriesUID'] = merged_df['Plan.SeriesUID'].astype(str)
+df_all_data = pd.merge(merged_df, df_prescription_data_clean, on='Plan.SeriesUID', how='inner')
 ```
 :::
 
+## Additional coding for lung SABR collections {.center}
+
+- I also had some additional code to find the PTV with the highest dose (in the case of multiple PTVs)
+- This then returns the volume of the relevant PTV (which we need for SABR collections)
+
+## Seperating our data into collections {.center}
+::: {.nonincremental}
+- At this point all our data is in one large dataframe containing _all_ the unallocated plans
+- We then seperate it into a seperate dataframe for each collection
+
+```{.python}
+df_NHS01 = df_lung_sabr[(df_lung_sabr['ROI.Volume'] < 20.0) 
+                       & (df_lung_sabr['Prescription.TotalDose'] == 54.0) 
+                       & (df_lung_sabr['Prescription.Fractions'] == 3)]
+```
+.
+```{.python}
+df_NHS21 = df_all_data[(df_all_data['Prescription.Name'].str.contains('TP-CP-1 ')) 
+                       & (df_all_data['Prescription.Site'].str.contains('Left')) 
+                       & (df_all_data['Prescription.TotalDose'] == 26.0) 
+                       & (df_all_data['Prescription.Fractions'] == 5)
+                       & (~df_all_data['Plan.Label'].str.contains('SCF'))]
+```
+:::
+
+## {.center}
+::: {.nonincremental}
+- We can then move the relevant dose object into the collection
+
+```{.python}
+NHSMoveEntityDataframeToCollection(config_path=config_path, input_df=df_NHS01,
+                                target_collection_name='NHS01_LUNG_SABR-6.1 <20cc 54/3')
+```
+.
+```{.python}
+NHSMoveEntityDataframeToCollection(config_path=config_path, input_df=df_NHS21, 
+                                target_collection_name='NHS21_LtBrst_CWall_Partial_26/5')
+```
+:::
 ## The source code is now available {.center}
 
-The source code for the modules should now be available on the T&F group Github page.
+The source code for the modules is now available on the T&F group Github page.
 
 ```{.bash}
 git clone https://github.com/nhs-proknow/proknow-scripting-tandf.git
@@ -253,4 +303,5 @@ git clone https://github.com/nhs-proknow/Hull_tandf_scripts.git
 ```
 ..but these will need heavily modifying to work in other centres
 
-These slides are here: https://github.com/GrahamArden/tandf_slides.git
+## Thank you {.center}
+- Any question?
